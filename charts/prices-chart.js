@@ -17,6 +17,7 @@ $.get("https://app.safello.com/api/prices?interval=YEARLY&crypto=BTC", function 
     var formattedDate = formatDate(data[j][0]);
     labels.push(formattedDate);
     var price = data[j][1];
+    prices.push(price);
     createChart("chart1year", labels, prices);
 });
 
@@ -43,11 +44,13 @@ $.get("https://app.safello.com/api/prices?interval=QUARTERLY&crypto=BTC", functi
 $.get("https://app.safello.com/api/prices?interval=MONTHLY&crypto=BTC", function (data) {
     var labels = [];
     var prices = [];
-    for (var i = 0; i < data; i++) {
-        var formattedDate = formatDate(data[i][0]);
-        labels.push(formattedDate);
-        var price = data[i][1];
-        prices.push(price);
+    for (var i = 0; i < data.length; i=i+20) {
+        if (data[i] || data[data.length - 1]) {
+            var formattedDate = formatDate(data[i][0]);
+            labels.push(formattedDate);
+            var price = data[i][1];
+            prices.push(price);
+        }
     }
     var j = data.length - 1;
     var formattedDate = formatDate(data[j][0]);
