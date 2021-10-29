@@ -2,33 +2,32 @@
 $('.btc-price').html(latestBitcoinPrice);
 
 var oldPrice = 0;
-$.get("https://currencyrate.azurewebsites.net/api/GetRate?currencyPair=EURSEK&nrOfItems=1&resolution=hour", function (data) {
-    var sekEurConversionRate = data.rates[0].rate;
 
-    $.get("https://simpleproxies.azurewebsites.net/btceur", function (data) {
-
-        updateTicker(data.last * sekEurConversionRate);
-
-        var ws = new WebSocket('wss://ws.bitstamp.net');
-        ws.onopen = () => {
-            ws.send('{"event": "bts:subscribe","data": { "channel": "live_trades_btceur" }}');
-        };
-        
-        ws.onmessage = (e) => {
-            var data = JSON.parse(e.data);
-            if (data.event != 'trade')
-                return;
-     
-            updateTicker(data.data.price * sekEurConversionRate);
-        };        
+fetch("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC")
+    .then(function (data) {
+        return data.json();
+    })
+    .then(function (json) {
+        if (
+            json &&
+            json[json.length - 1] !== undefined &&
+            json[json.length - 1][1] !== undefined
+        ) {
+            const lastPrice = json[json.length - 1][1];
+            updateTicker(lastPrice);
+        } else {
+            console.log("couldn't read the json from /api/prices");
+        }
+    })
+    .catch(function (err) {
+        console.error(err);
     });
-});
 
 function updateTicker(price) {
     if (price != oldPrice)
         updateDirection(price);
     oldPrice = price;
-    var formattedPrice = formatPrice(Math.round(price));
+    var formattedPrice = formatPrice(parseInt(price));
     $('.btc-price').html(formattedPrice);
     $('.updated-time').html(formatTickerDate(new Date));
 
