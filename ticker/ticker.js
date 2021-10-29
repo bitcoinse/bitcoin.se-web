@@ -1,7 +1,7 @@
 ﻿var latestBitcoinPrice = localStorage.getItem('latestBitcoinPrice');
-$('.btc-price').html(latestBitcoinPrice);
+$('.btc-price').html(formatPrice(parseInt(latestBitcoinPrice)));
 
-var oldPrice = 0;
+var oldPrice = latestBitcoinPrice;
 
 fetch("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC")
     .then(function (data) {
@@ -31,7 +31,7 @@ function updateTicker(price) {
     $('.btc-price').html(formattedPrice);
     $('.updated-time').html(formatTickerDate(new Date));
 
-    localStorage.setItem('latestBitcoinPrice', formattedPrice);
+    localStorage.setItem('latestBitcoinPrice', price);
 }
 
 function formatPrice(x) {
