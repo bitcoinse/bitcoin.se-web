@@ -2,52 +2,52 @@
 Chart.defaults.global.defaultFontFamily = "futura-pt";
 Chart.defaults.global.defaultFontSize = 12;
 
-$.get("https://currencyrate.azurewebsites.net/api/GetRate?currencyPair=BTCSEK&midCur=USD&nrOfItems=365&step=7", function (data) {
+$.get("https://app.safello.com/api/prices?interval=YEARLY&crypto=BTC", function (data) {
     var labels = [];
     var prices = [];
-    for (var i = 0; i < data.rates.length; i++) {
-        var formattedDate = formatDate(data.rates[i].unixDate * 1000);
+    for (var i = 0; i < data; i++) {
+        var formattedDate = formatDate(data[i][0]);
         labels.push(formattedDate);
-        var price = data.rates[i].rate;
+        var price = data[i][1];
         prices.push(price);
     }
 
     createChart("chart1year", labels, prices);
 });
 
-$.get("https://currencyrate.azurewebsites.net/api/GetRate?currencyPair=BTCSEK&midCur=USD&nrOfItems=90&step=3", function (data) {
+$.get("https://app.safello.com/api/prices?interval=QUARTERLY&crypto=BTC", function (data) {
     var labels = [];
     var prices = [];
-    for (var i = 0; i < data.rates.length; i++) {
-        var formattedDate = formatDate(data.rates[i].unixDate * 1000);
+    for (var i = 0; i < data; i++) {
+        var formattedDate = formatDate(data[i][0]);
         labels.push(formattedDate);
-        var price = data.rates[i].rate;
+        var price = data[i][1];
         prices.push(price);
     }
 
     createChart("chart3months", labels, prices);
 });
 
-$.get("https://currencyrate.azurewebsites.net/api/GetRate?currencyPair=BTCSEK&midCur=USD&nrOfItems=30", function (data) {
+$.get("https://app.safello.com/api/prices?interval=MONTHLY&crypto=BTC", function (data) {
     var labels = [];
     var prices = [];
-    for (var i = 0; i < data.rates.length; i++) {
-        var formattedDate = formatDate(data.rates[i].unixDate * 1000);
+    for (var i = 0; i < data; i++) {
+        var formattedDate = formatDate(data[i][0]);
         labels.push(formattedDate);
-        var price = data.rates[i].rate;
+        var price = data[i][1];
         prices.push(price);
     }
 
     createChart("chart30days", labels, prices);
 });
 
-$.get("https://currencyrate.azurewebsites.net/api/GetRate?currencyPair=BTCSEK&midCur=USD&nrOfItems=24&resolution=hour", function (data) {
+$.get("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC", function (data) {
     var labels = [];
     var prices = [];
-    for (var i = 0; i < data.rates.length; i++) {
-        var formattedTime = formatTime(data.rates[i].unixDate * 1000);
-        labels.push(formattedTime);
-        var price = data.rates[i].rate;
+    for (var i = 0; i < data; i++) {
+        var formattedDate = formatDate(data[i][0]);
+        labels.push(formattedDate);
+        var price = data[i][1];
         prices.push(price);
     }
 
