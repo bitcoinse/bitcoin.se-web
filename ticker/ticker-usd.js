@@ -21,7 +21,7 @@ if ( $('.btc-price-usd').length ) {
 
 function updateTickerUsd(price) {
     if (price != oldPriceUsd)
-        updateDirection(price);
+        updateDirectionUsd(price);
     oldPriceUsd = price;
     var formattedPrice = formatPrice(Math.round(price));
     $('.btc-price-usd').fadeOut(200);
@@ -42,7 +42,7 @@ function formatTickerDate(date) {
     return date.toISOString().substr(11, 8);
 }
 
-function updateDirection(newPrice) {
+function updateDirectionUsd(newPrice) {
     if (newPrice > oldPriceUsd) {
         $('.btc-usd-up').show();
         $('.btc-usd-down').hide();
