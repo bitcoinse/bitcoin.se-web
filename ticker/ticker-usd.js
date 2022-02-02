@@ -20,15 +20,16 @@ if ( $('.btc-price-usd').length ) {
 }
 
 function updateTickerUsd(price) {
-    if (price != oldPriceUsd)
-        updateDirectionUsd(price);
-    oldPriceUsd = price;
-    var formattedPrice = formatPrice(Math.round(price));
-    $('.btc-price-usd').fadeOut(200);
-    $('.btc-price-usd').html(formattedPrice);
-    $('.btc-price-usd').fadeIn(200);
-    $('.updated-time-usd').html(formatTickerDate(new Date));
-    localStorage.setItem('latestBitcoinPriceUSD', formattedPrice);
+    if (price != oldPriceUsd) {
+        updateDirectionUsd(price)
+        oldPriceUsd = price;
+        var formattedPrice = formatPrice(Math.round(price));
+        $('.btc-price-usd').fadeOut(200);
+        $('.btc-price-usd').html(formattedPrice);
+        $('.btc-price-usd').fadeIn(200);
+        $('.updated-time-usd').html(formatTickerDate(new Date));
+        localStorage.setItem('latestBitcoinPriceUSD', formattedPrice);
+    }
 }
 
 function formatPrice(x) {
