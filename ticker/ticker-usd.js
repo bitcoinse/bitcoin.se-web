@@ -3,7 +3,6 @@ $('.btc-price-usd').html(latestBitcoinPriceUsd);
 
 var oldPriceUsd = 0;
 
-console.log($('.btc-price-usd').length)
 if ( $('.btc-price-usd').length ) {
 
     $.get("https://api.gemini.com/v1/pubticker/btcusd", function (data) {
