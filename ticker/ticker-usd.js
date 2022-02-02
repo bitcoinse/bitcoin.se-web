@@ -39,7 +39,9 @@ function formatPrice(x) {
 }
 
 function formatTickerDate(date) {
-    return date.toISOString().substr(11, 8);
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString()
+    return localISOTime.substr(11, 8);
 }
 
 function updateDirectionUsd(newPrice) {
