@@ -3,7 +3,11 @@ $('.btc-price').html(formatPrice(parseInt(latestBitcoinPrice)));
 
 var oldPrice = latestBitcoinPrice;
 
-fetch("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC")
+fetchBitcoinPriceSek();
+setInterval(fetchBitcoinPriceSek, 600000);
+
+function fetchBitcoinPriceSek() {
+    fetch("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC")
     .then(function (data) {
         return data.json();
     })
@@ -22,6 +26,7 @@ fetch("https://app.safello.com/api/prices?interval=DAILY&crypto=BTC")
     .catch(function (err) {
         console.error(err);
     });
+}
 
 function updateTicker(price) {
     if (price != oldPrice)
