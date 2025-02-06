@@ -1,46 +1,101 @@
-﻿var latestBitcoinPriceUsd = localStorage.getItem('latestBitcoinPriceUSD');
-$('.btc-price-usd').html(latestBitcoinPriceUsd);
+﻿const CRYPTO_SYMBOLS = {
+    BTC: "BTC",
+    ETH: "ETH",
+    LINK: "LINK",
+    DOT: "DOT",
+    MATIC: "MATIC",
+    USDC: "USDC",
+    ALGO: "ALGO",
+    UNI: "UNI",
+    SOL: "SOL",
+    NEAR: "NEAR",
+    ADA: "ADA",
+    AVAX: "AVAX",
+    LDO: "LDO",
+    GRT: "GRT",
+    USDT: "USDT",
+    DOGE: "DOGE",
+    SHIB: "SHIB",
+    AAVE: "AAVE",
+    FTM: "FTM",
+    COMP: "COMP",
+    LTC: "LTC",
+    BCH: "BCH",
+    MKR: "MKR",
+    SAND: "SAND",
+    WIF: "WIF",
+    JUP: "JUP",
+    SNX: "SNX",
+    WOO: "WOO",
+    FET: "FET",
+    YFI: "YFI",
+    OP: "OP",
+    ARB: "ARB",
+    POPCAT: "POPCAT",
+    SUI: "SUI",
+    S: "S",
+    TRUMP: "TRUMP",
+    MELANIA: "MELANIA",
+    POL: "POL"
+  };
 
-var oldPriceUsd = 0;
+Object.keys(CRYPTO_SYMBOLS).forEach(symbol => {
+    var latestPrice = localStorage.getItem(`latest${symbol}PriceUSD`);
+    $(`.${symbol.toLowerCase()}-price-usd`).html(latestPrice);
+});
 
-if ( $('.btc-price-usd').length ) {
+var oldPrices = {};
 
-    $.get("https://api.gemini.com/v1/pubticker/btcusd", function (data) {
-        updateTickerUsd(data.last);
+function initializeTicker(symbol) {
+    if ($(`.${symbol.toLowerCase()}-price-usd`).length) {
+        $.get(`https://api.gemini.com/v1/pubticker/${symbol.toLowerCase()}usd`, function (data) {
+            updateTicker(symbol, data.last);
 
-        var ws = new WebSocket("wss://api.gemini.com/v1/marketdata/btcusd?bids=false&offers=false&auctions=false&trades=true");
-        ws.onmessage = function (event) {
-            var json = JSON.parse(event.data);
-            if(json.events.length == 0 || json.events[0].type != "trade") 
-                return           
-                            
-            updateTickerUsd(json.events[0].price);
-        };
-    });
+            var ws = new WebSocket(`wss://api.gemini.com/v1/marketdata/${symbol.toLowerCase()}usd?bids=false&offers=false&auctions=false&trades=true`);
+            ws.onmessage = function (event) {
+                var json = JSON.parse(event.data);
+                if(json.events.length == 0 || json.events[0].type != "trade") 
+                    return;
+                                
+                updateTicker(symbol, json.events[0].price);
+            };
+        });
+    }
 }
 
-function updateTickerUsd(price) {
-    if (price != oldPriceUsd) {
-        updateDirectionUsd(price)
-        oldPriceUsd = price;
-        var oldFormattedPrice = localStorage.getItem('latestBitcoinPriceUSD');        
-        var formattedPrice = formatPrice(Math.round(price));
-        if (oldFormattedPrice != formattedPrice)
-        {
-            $('.btc-price-usd').fadeOut(200);
-            $('.btc-price-usd').html(formattedPrice);
-            $('.btc-price-usd').fadeIn(200);
+function updateTicker(symbol, price) {
+    if (price != oldPrices[symbol]) {
+        updateDirection(symbol, price);
+        oldPrices[symbol] = price;
+        var oldFormattedPrice = localStorage.getItem(`latest${symbol}PriceUSD`);        
+        var formattedPrice = formatPrice(parseFloat(price));
+        
+        if (oldFormattedPrice != formattedPrice) {
+            $(`.${symbol.toLowerCase()}-price-usd`).fadeOut(200);
+            $(`.${symbol.toLowerCase()}-price-usd`).html(formattedPrice);
+            $(`.${symbol.toLowerCase()}-price-usd`).fadeIn(200);
         }
-        $('.updated-time-usd').html(formatTickerDate(new Date));
-        localStorage.setItem('latestBitcoinPriceUSD', formattedPrice);
+        
+        $(`.updated-time-${symbol.toLowerCase()}`).html(formatTickerDate(new Date));
+        localStorage.setItem(`latest${symbol}PriceUSD`, formattedPrice);
     }
 }
 
 function formatPrice(x) {
     if (isNaN(x)) return "";
 
-    n = x.toString().split('.');
-    return n[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ") + (n.length > 1 ? "." + n[1] : "");
+    let n = x.toString().split('.');
+    let integerPart = n[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+    if (x < 0.01) {
+        return x.toFixed(6);
+    } else if (x < 1) {
+        return x.toFixed(4);
+    } else if (x < 100) {
+        return x.toFixed(2);
+    } else {
+        return integerPart;
+    }
 }
 
 function formatTickerDate(date) {
@@ -49,15 +104,18 @@ function formatTickerDate(date) {
     return localISOTime.substr(11, 8);
 }
 
-function updateDirectionUsd(newPrice) {
-    if (newPrice > oldPriceUsd) {
-        $('.btc-usd-up').show();
-        $('.btc-usd-down').hide();
-    }
-    else {
-        $('.btc-usd-down').show();
-        $('.btc-usd-up').hide();
+function updateDirection(symbol, newPrice) {
+    if (newPrice > oldPrices[symbol]) {
+        $(`.${symbol.toLowerCase()}-up`).show();
+        $(`.${symbol.toLowerCase()}-down`).hide();
+    } else {
+        $(`.${symbol.toLowerCase()}-down`).show();
+        $(`.${symbol.toLowerCase()}-up`).hide();
     }
 }
+
+Object.keys(CRYPTO_SYMBOLS).forEach(symbol => {
+    initializeTicker(symbol);
+});
 
 
