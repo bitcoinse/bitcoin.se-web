@@ -1,10 +1,8 @@
 async function fetchPriceSek(cryptoSymbol = 'BTC') {
-
   const storageKey = `latest${cryptoSymbol}Price`;
   const latestPrice = localStorage.getItem(storageKey);
   if (latestPrice) {
-    $(`.${cryptoSymbol.toLowerCase()}-price`).html(formatPrice(parseInt(latestPrice)));
-    $(`.${cryptoSymbol.toLowerCase()}-price-sek`).html(formatPrice(parseInt(latestPrice)));
+    $(`.${cryptoSymbol.toLowerCase()}-price-sek`).html(formatPrice(Number(latestPrice)));
   }
 
   try {
@@ -44,19 +42,28 @@ async function fetchPriceSek(cryptoSymbol = 'BTC') {
 
       localStorage.setItem(storageKey, newPrice);
   } catch (err) {
-      console.error(err);
+      console.error('Error fetching price:', err);
   }
 }
+
 
 function formatPrice(x) {
   if (isNaN(x)) return "";
 
-  if (x >= 1000) {
-      x = Math.round(x);
+  let n = x.toString().split('.');
+  let integerPart = n[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+  if (x < 0.01) {
+    return x.toFixed(6);
+  } else if (x < 1) {
+      return x.toFixed(4);
+  } else if (x < 100) {
+      return x.toFixed(2);
+  } else {
+      return integerPart;
   }
 
-  const n = x.toString().split('.');
-  return n[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ") + (n.length > 1 ? "." + n[1] : "");
+
 }
 
 function formatTickerDate(date) {
