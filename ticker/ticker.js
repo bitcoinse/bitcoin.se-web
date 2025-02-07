@@ -43,6 +43,7 @@ function initCryptoTicker(symbol) {
     const storageKey = `latest${symbol}Price`;
     const latestPrice = localStorage.getItem(storageKey);
     $(`.${symbol.toLowerCase()}-price`).html(formatPrice(parseInt(latestPrice)));
+    $(`.${symbol.toLowerCase()}-price-sek`).html(formatPrice(parseInt(latestPrice)));
     
     window[`old${symbol}Price`] = latestPrice;
     
@@ -74,7 +75,6 @@ function fetchCryptoPrice(symbol) {
 
 function updateTicker(price, symbol) {
     const oldPrice = window[`old${symbol}Price`];
-    console.log("kikamika", symbol, price, oldPrice)
     if (price != oldPrice)
         updateDirection(price, oldPrice, symbol);
     
@@ -82,6 +82,7 @@ function updateTicker(price, symbol) {
     const formattedPrice = formatPrice(price);
     
     $(`.${symbol.toLowerCase()}-price`).html(formattedPrice);
+    $(`.${symbol.toLowerCase()}-price-sek`).html(formattedPrice);
     $('.updated-time').html(formatTickerDate(new Date));
 
     if ($(`.om-${symbol.toLowerCase()}kurs`).length) {
