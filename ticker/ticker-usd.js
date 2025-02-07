@@ -41,14 +41,23 @@
 
 Object.keys(CRYPTO_SYMBOLS).forEach(symbol => {
     var latestPrice = localStorage.getItem(`latest${symbol}PriceUSD`);
+    console.log(`Initial load for ${symbol}:`, {
+        price: latestPrice,
+        elementExists: $(`.${symbol.toLowerCase()}-price-usd`).length > 0
+    });
     $(`.${symbol.toLowerCase()}-price-usd`).html(latestPrice);
 });
 
 var oldPrices = {};
 
 function initializeTicker(symbol) {
+    console.log(`Initializing ticker for ${symbol}`, {
+        elementExists: $(`.${symbol.toLowerCase()}-price-usd`).length
+    });
+    
     if ($(`.${symbol.toLowerCase()}-price-usd`).length) {
         $.get(`https://api.gemini.com/v1/pubticker/${symbol.toLowerCase()}usd`, function (data) {
+            console.log(`API response for ${symbol}:`, data);
             updateTicker(symbol, data.last);
 
             var ws = new WebSocket(`wss://api.gemini.com/v1/marketdata/${symbol.toLowerCase()}usd?bids=false&offers=false&auctions=false&trades=true`);
@@ -59,11 +68,19 @@ function initializeTicker(symbol) {
                                 
                 updateTicker(symbol, json.events[0].price);
             };
+        }).fail(function(error) {
+            console.error(`API error for ${symbol}:`, error);
         });
     }
 }
 
 function updateTicker(symbol, price) {
+    console.log(`Updating ticker for ${symbol}:`, {
+        newPrice: price,
+        oldPrice: oldPrices[symbol],
+        elementSelector: `.${symbol.toLowerCase()}-price-usd`,
+        elementExists: $(`.${symbol.toLowerCase()}-price-usd`).length
+    });
     if (price != oldPrices[symbol]) {
         updateDirection(symbol, price);
         oldPrices[symbol] = price;
@@ -76,7 +93,7 @@ function updateTicker(symbol, price) {
             $(`.${symbol.toLowerCase()}-price-usd`).fadeIn(200);
         }
         
-        $(`.updated-time-${symbol.toLowerCase()}`).html(formatTickerDate(new Date));
+        $(`.updated-time-usd}`).html(formatTickerDate(new Date));
         localStorage.setItem(`latest${symbol}PriceUSD`, formattedPrice);
     }
 }

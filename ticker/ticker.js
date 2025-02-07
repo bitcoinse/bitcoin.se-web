@@ -85,13 +85,11 @@ function updateTicker(price, symbol) {
     $(`.${symbol.toLowerCase()}-price-sek`).html(formattedPrice);
     $('.updated-time').html(formatTickerDate(new Date));
 
-    if ($(`.om-${symbol.toLowerCase()}kurs`).length) {
-        $(`.${symbol.toLowerCase()}-price-sek`).html(formattedPrice);
-        $(`.om-${symbol.toLowerCase()}kurs strong:first`).html(formattedPrice);
-        if (symbol === 'BTC') {
-            var satoshisPerKrona = (1/(price / 100000000)).toFixed(0);
-            $('.om-bitcoinkurs strong:last').html(satoshisPerKrona);
-        }
+    if ( $('.om-bitcoinkurs').length ) {
+        $('.btc-price-sek').html(formattedPrice);
+        $('.om-bitcoinkurs strong:first').html(formattedPrice);
+        var satoshisPerKrona = (1/(price / 100000000)).toFixed(0);
+        $('.om-bitcoinkurs strong:last').html(satoshisPerKrona);
     }
 
     localStorage.setItem(`latest${symbol}Price`, price);
