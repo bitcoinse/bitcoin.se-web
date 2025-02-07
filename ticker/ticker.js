@@ -1,4 +1,43 @@
-﻿import { CRYPTO_SYMBOLS } from './constants.js';
+﻿export const CRYPTO_SYMBOLS_SEK = {
+    BTC: "BTC",
+    ETH: "ETH",
+    LINK: "LINK",
+    DOT: "DOT",
+    MATIC: "MATIC",
+    USDC: "USDC",
+    ALGO: "ALGO",
+    UNI: "UNI",
+    SOL: "SOL",
+    NEAR: "NEAR",
+    ADA: "ADA",
+    AVAX: "AVAX",
+    LDO: "LDO",
+    GRT: "GRT",
+    USDT: "USDT",
+    DOGE: "DOGE",
+    SHIB: "SHIB",
+    AAVE: "AAVE",
+    FTM: "FTM",
+    COMP: "COMP",
+    LTC: "LTC",
+    BCH: "BCH",
+    MKR: "MKR",
+    SAND: "SAND",
+    WIF: "WIF",
+    JUP: "JUP",
+    SNX: "SNX",
+    WOO: "WOO",
+    FET: "FET",
+    YFI: "YFI",
+    OP: "OP",
+    ARB: "ARB",
+    POPCAT: "POPCAT",
+    SUI: "SUI",
+    S: "S",
+    TRUMP: "TRUMP",
+    MELANIA: "MELANIA",
+    POL: "POL"
+  };
 
 function initCryptoTicker(symbol) {
     const storageKey = `latest${symbol}Price`;
@@ -83,7 +122,7 @@ function formatTickerDate(date) {
     return localISOTime.substr(11, 8);
 }
 
-Object.values(CRYPTO_SYMBOLS).forEach(symbol => {
+Object.values(CRYPTO_SYMBOLS_SEK).forEach(symbol => {
     initCryptoTicker(symbol);
 });
 
