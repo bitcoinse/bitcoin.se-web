@@ -36,6 +36,13 @@ function updateTicker(price) {
     $('.btc-price').html(formattedPrice);
     $('.updated-time').html(formatTickerDate(new Date));
 
+    if ( $('.om-bitcoinkurs').length ) {
+        $('.btc-price-sek').html(formattedPrice);
+        $('.om-bitcoinkurs strong:first').html(formattedPrice);
+        var satoshisPerKrona = (1/(price / 100000000)).toFixed(0);
+        $('.om-bitcoinkurs strong:last').html(satoshisPerKrona);
+    }
+
     localStorage.setItem('latestBitcoinPrice', price);
 }
 

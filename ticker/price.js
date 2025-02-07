@@ -28,17 +28,10 @@ async function fetchPriceSek(cryptoSymbol = 'BTC') {
           }
       }
 
-      const formattedPrice = newPrice.toString().split('.')[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
       const tzoffset = (new Date()).getTimezoneOffset() * 60000;
       const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().substr(11, 8);
       
       $('.updated-time').html(localISOTime);
-
-      if (cryptoSymbol === 'BTC') {
-          $(`.om-bitcoinkurs strong:first`).html(formattedPrice);
-          const satoshisPerKrona = (1/(newPrice / 100000000)).toFixed(0);
-          $(`.om-bitcoinkurs strong:last`).html(satoshisPerKrona);
-      }
 
       localStorage.setItem(storageKey, newPrice);
   } catch (err) {
