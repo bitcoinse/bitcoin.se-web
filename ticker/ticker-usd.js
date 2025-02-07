@@ -1,4 +1,4 @@
-﻿export const CRYPTO_SYMBOLS_USD = {
+﻿const CRYPTO_SYMBOLS_USD = {
     BTC: "BTC",
     ETH: "ETH",
     LINK: "LINK",
