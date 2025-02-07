@@ -40,38 +40,70 @@
   };
 
 Object.keys(CRYPTO_SYMBOLS_USD).forEach(symbol => {
-    var latestPrice = localStorage.getItem(`latest${symbol}PriceUSD`);
-    console.log(`Initial load for ${symbol}:`, {
-        price: latestPrice,
-        elementExists: $(`.${symbol.toLowerCase()}-price-usd`).length > 0
-    });
-    $(`.${symbol.toLowerCase()}-price-usd`).html(latestPrice);
+    try {
+        var latestPrice = null;
+        try {
+            latestPrice = localStorage.getItem(`latest${symbol}PriceUSD`);
+        } catch (e) {
+            console.warn('localStorage not available:', e);
+        }
+        
+        const selector = `.${symbol.toLowerCase()}-price-usd`;
+        const element = $(selector);
+        
+        console.log(`Initial load for ${symbol}:`, {
+            price: latestPrice,
+            elementExists: element.length > 0
+        });
+        
+        if (element.length > 0 && latestPrice) {
+            element.html(latestPrice);
+        }
+    } catch (e) {
+        console.error(`Error processing ${symbol}:`, e);
+    }
 });
 
 var oldPrices = {};
 
 function initializeTicker(symbol) {
+    if (!symbol) return;
+    
+    const selector = `.${symbol.toLowerCase()}-price-usd`;
+    const element = $(selector);
+    
     console.log(`Initializing ticker for ${symbol}`, {
-        elementExists: $(`.${symbol.toLowerCase()}-price-usd`).length
+        elementExists: element.length
     });
     
-    if ($(`.${symbol.toLowerCase()}-price-usd`).length) {
-        $.get(`https://api.gemini.com/v1/pubticker/${symbol.toLowerCase()}usd`, function (data) {
-            console.log(`API response for ${symbol}:`, data);
-            updateTicker(symbol, data.last);
-
-            var ws = new WebSocket(`wss://api.gemini.com/v1/marketdata/${symbol.toLowerCase()}usd?bids=false&offers=false&auctions=false&trades=true`);
-            ws.onmessage = function (event) {
-                var json = JSON.parse(event.data);
-                if(json.events.length == 0 || json.events[0].type != "trade") 
-                    return;
-                                
-                updateTicker(symbol, json.events[0].price);
-            };
-        }).fail(function(error) {
-            console.error(`API error for ${symbol}:`, error);
-        });
+    if (element.length) {
+        $.get(`https://api.gemini.com/v1/pubticker/${symbol.toLowerCase()}usd`)
+            .done(function (data) {
+                if (data && data.last) {
+                    console.log(`API response for ${symbol}:`, data);
+                    updateTicker(symbol, data.last);
+                    
+                    setupWebSocket(symbol);
+                }
+            })
+            .fail(function(error) {
+                console.error(`API error for ${symbol}:`, error);
+            });
     }
+}
+
+function setupWebSocket(symbol) {
+    const ws = new WebSocket(`wss://api.gemini.com/v1/marketdata/${symbol.toLowerCase()}usd?bids=false&offers=false&auctions=false&trades=true`);
+    ws.onmessage = function (event) {
+        try {
+            const json = JSON.parse(event.data);
+            if (json.events && json.events.length > 0 && json.events[0].type === "trade") {
+                updateTicker(symbol, json.events[0].price);
+            }
+        } catch (e) {
+            console.error(`WebSocket error for ${symbol}:`, e);
+        }
+    };
 }
 
 function updateTicker(symbol, price) {

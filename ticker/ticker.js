@@ -52,29 +52,35 @@ function initCryptoTicker(symbol) {
 }
 
 function fetchCryptoPrice(symbol) {
+    console.log(`Fetching price for ${symbol}...`);
     fetch(`https://app.safello.com/api/prices?interval=DAILY&crypto=${symbol}`)
     .then(function (data) {
+        console.log(`Received response for ${symbol}:`, data.status);
         return data.json();
     })
     .then(function (json) {
+        console.log(`Parsed JSON for ${symbol}:`, json);
         if (
             json &&
             json[json.length - 1] !== undefined &&
             json[json.length - 1][1] !== undefined
         ) {
             const lastPrice = json[json.length - 1][1];
+            console.log(`Updating ${symbol} price to: ${lastPrice}`);
             updateTicker(lastPrice, symbol);
         } else {
-            console.log(`couldn't read the json from /api/prices for ${symbol}, json: ${JSON.stringify(json)}`);
+            console.warn(`Invalid JSON response for ${symbol}:`, json);
         }
     })
     .catch(function (err) {
-        console.error(err);
+        console.error(`Error fetching ${symbol} price:`, err);
     });
 }
 
 function updateTicker(price, symbol) {
     const oldPrice = window[`old${symbol}Price`];
+    console.log(`${symbol} price update - Old: ${oldPrice}, New: ${price}`);
+    
     if (price != oldPrice)
         updateDirection(price, oldPrice, symbol);
     
@@ -83,12 +89,20 @@ function updateTicker(price, symbol) {
     
     $(`.${symbol.toLowerCase()}-price`).html(formattedPrice);
     $(`.${symbol.toLowerCase()}-price-sek`).html(formattedPrice);
-    $(`.updated-time-sek-${symbol.toLowerCase()}`).html(formatTickerDate(new Date));
+    
+    const currentTime = formatTickerDate(new Date());
+    console.log(`Updating time for ${symbol} to: ${currentTime}`);
+    $(`.updated-time-sek-${symbol.toLowerCase()}`).html(currentTime);
 
-    if ( $('.om-bitcoinkurs').length ) {
-        $('.om-bitcoinkurs strong:first').html($(`.btc-price-sek`).html());
-        var satoshisPerKrona = (1/(window[`oldBTCPrice`] / 100000000)).toFixed(0);
-        $('.om-bitcoinkurs strong:last').html(satoshisPerKrona);
+    if (symbol === 'BTC' && $('.om-bitcoinkurs').length) {
+        console.log('Found .om-bitcoinkurs element, updating Bitcoin values');
+        const btcPrice = window[`oldBTCPrice`];
+        console.log(`Current BTC price: ${btcPrice}`);
+        
+        $('.om-bitcoinkurs strong:first').text(formattedPrice);
+        const satoshisPerKrona = Math.round(100000000 / btcPrice);
+        console.log(`Calculated satoshis per krona: ${satoshisPerKrona}`);
+        $('.om-bitcoinkurs strong:last').text(satoshisPerKrona);
     }
 
     localStorage.setItem(`latest${symbol}Price`, price);
@@ -117,9 +131,12 @@ function formatPrice(x) {
 }
 
 function formatTickerDate(date) {
-    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
-    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString()
-    return localISOTime.substr(11, 8);
+    // Fix timezone handling
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
 }
 
 Object.values(CRYPTO_SYMBOLS_SEK).forEach(symbol => {
